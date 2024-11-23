@@ -202,9 +202,22 @@ for i in range(num_iterations):
 
 sim_frame = pd.DataFrame(simulation_res.T,columns=['ret','stdev','climate_score','sharpe',stock[0],stock[1],stock[2],stock[3],stock[4],stock[5],stock[6],stock[7],stock[8],stock[9],stock[10]])
 
+# Sort sim_frame by Sharpe ratio in descending order
+sorted_sim_frame = sim_frame.sort_values(by='sharpe', ascending=False)
+
+# Select the top 10 rows
+top_results = sorted_sim_frame.head(10)
+
+
 plt.scatter(sim_frame.climate_score,sim_frame.sharpe,c=sim_frame.sharpe,cmap='RdYlBu')
 plt.ylabel('Sharpe')
 plt.xlabel('Climate Score')
+
+plt.scatter(top_results.climate_score,top_results.sharpe,c=top_results.sharpe,cmap='RdYlBu')
+plt.ylabel('Sharpe')
+plt.xlabel('Climate Score')
+
+
 
 x = sim_frame.ret
 y = sim_frame.climate_score

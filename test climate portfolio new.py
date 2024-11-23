@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov 18 11:02:40 2024
-
-@author: aniac
-"""
-
 
 import os
 
@@ -90,8 +83,10 @@ import plotly.graph_objects as go
 
 
 def data_import(path, excel_file_name, sheet_number):
-
-    excel = pd.ExcelFile(path+excel_file_name)
+    
+    full_path = os.path.join(path, excel_file_name)
+    
+    excel = pd.ExcelFile(full_path)
 
     data = excel.parse(sheet_number)
 
@@ -114,10 +109,14 @@ def returns(price, type = 'ln'):
 
     return(ret)
 
+# Use environment variables to get the path and excel file name
+path = os.getenv('EXCEL_FILE_PATH')
 
-path = r'C:\risk analysis'   #change this path
+ex_file_n = os.getenv('EXCEL_FILE_NAME')
 
-ex_file_n = r'\input 11182024 test portfolio.xlsx'
+# path = r'C:\risk analysis'   #change this path
+
+# ex_file_n = r'\input 11182024 test portfolio.xlsx'
 
 prices_daily = data_import(path, ex_file_n, 0)
 
@@ -234,35 +233,3 @@ plt.xlabel('Climate Score')
 plt.title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios")
 plt.legend()
 plt.show()
-
-
-x = sim_frame.ret
-y = sim_frame.climate_score
-z = sim_frame.sharpe
-
-fig = go.Figure(data=[go.Scatter3d(
-    x=x,
-    y=y,
-    z=z,
-    mode='markers',
-    marker=dict(
-        size=2,
-        color=z,                # set color to an array/list of desired values
-        colorscale='Viridis',   # choose a colorscale
-        opacity=0.8
-    )
-)])
-
-# tight layout
-
-fig.update_layout(
-    margin=dict(l=0, r=0, b=0, t=0),
-    scene=dict(
-        xaxis_title='Return',
-        yaxis_title='Climate Score',
-        zaxis_title='Sharpe Ratio'
-    )
-)
-
-fig.write_html('first_figure.html', auto_open=True)
-

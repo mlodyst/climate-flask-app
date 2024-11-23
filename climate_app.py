@@ -52,10 +52,10 @@ def process_deal():
     corr_matrix = rreturns.corr()
     cov_matrix = rreturns.cov() * 12
     
-    simulation_res = np.zeros((5 + len(prices_daily.columns) - 1, 200000))
+    simulation_res = np.zeros((5 + len(prices_daily.columns) - 1, 10))
     
     # Simulate portfolio
-    for i in range(200000):
+    for i in range(10):
         weights = np.random.random(len(prices_daily.columns))
         weights /= np.sum(weights)
         
