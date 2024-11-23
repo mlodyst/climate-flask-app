@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 # Initialize the Flask app
 app = Flask(__name__)
 
+input_file_path = 'input 11182024 test portfolio.xlsx'
+
 # Utility functions from your script
 def data_import(path, excel_file_name, sheet_number):
     full_path = os.path.join(path, excel_file_name)
@@ -27,10 +29,10 @@ def returns(price, type='ln'):
 @app.route('/run-script', methods=['POST'])
 def run_script():
     try:
-        # Retrieve environment variables or use defaults
-        path = os.getenv('EXCEL_FILE_PATH', './') 
-        ex_file_n = os.getenv('EXCEL_FILE_NAME', 'input 11182024 test portfolio.xlsx')  # Default file name
-        
+        # Define path to the file
+        path = os.getcwd()  # Get the current working directory (root of the project)
+        ex_file_n = input_file_path  # Path to the Excel file in the 'data/' directory
+               
         # Import data
         prices_daily = data_import(path,ex_file_n, 0)
         masterdata = data_import(path, ex_file_n, 1)
