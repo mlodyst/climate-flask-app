@@ -28,8 +28,8 @@ def returns(price, type='ln'):
 def run_script():
     try:
         # Retrieve environment variables or use defaults
-        path = os.getenv('EXCEL_FILE_PATH')  # Default to current directory
-        ex_file_n = os.getenv('EXCEL_FILE_NAME')  # Default file name
+        path = os.getenv('EXCEL_FILE_PATH', 'C:\risk analysis')  # Default to current directory
+        ex_file_n = os.getenv('EXCEL_FILE_NAME', '\input 11182024 test portfolio.xlsx')  # Default file name
 
         # Import data
         prices_daily = data_import(path, ex_file_n, 0)
