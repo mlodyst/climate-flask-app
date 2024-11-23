@@ -1,1 +1,1 @@
-web: python climate_app.py
+web: python climate_script.py
