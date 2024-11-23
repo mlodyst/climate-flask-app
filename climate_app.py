@@ -26,7 +26,7 @@ def returns(price, type='ln'):
     return ret
 
 # API endpoint to handle the request from Glideapp
-@app.route('/climate-flask-app', methods=['POST'])
+@app.route('/process_deal', methods=['POST'])
 def process_deal():
     # Get the data from the POST request
     request_data = request.get_json()
