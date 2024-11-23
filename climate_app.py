@@ -34,10 +34,10 @@ def process_deal():
     new_deal_name = request_data.get('deal_name')
     max_size = request_data.get('max_size')
 
-    # Path and Excel file (adjust this path if needed)
-    path = r'C:\risk analysis'  
-    ex_file_n = r'\input 11182024 test portfolio.xlsx'
-    
+    # Use environment variables to get the path and excel file name
+    path = os.getenv('EXCEL_FILE_PATH', default='C:/default/path/')  # Use a default if not found
+    ex_file_n = os.getenv('EXCEL_FILE_NAME', default='input_11182024_test_portfolio.xlsx')
+
     # Data import (for simplicity, just using some of the data for this demo)
     prices_daily = data_import(path, ex_file_n, 0)
     mean_returns = data_import(path, ex_file_n, 2)
