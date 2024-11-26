@@ -103,7 +103,7 @@ def run_script():
         return jsonify({
             "message": "Script executed successfully",
             "top_results": top_results.to_dict(orient='records'),
-            "plot": plot_to_base64(),
+            # "plot": plot_to_base64(),
         })
 
     except Exception as e:
