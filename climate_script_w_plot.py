@@ -112,14 +112,22 @@ def run_script():
     
     
         # Return top results as JSON
-        return jsonify({
+        response = jsonify({
             "message": "Script executed successfully",
             "top_results": top_results.to_dict(orient='records'),
             # "plot": plot_to_base64(),
         })
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
 
+        return response
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        response = jsonify({"error": str(e)})
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response, 500
 
 # Run the app
 if __name__ == '__main__':
