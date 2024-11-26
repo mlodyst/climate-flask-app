@@ -100,9 +100,9 @@ def run_script():
         # Plotting (we'll encode the images to base64 to send them as part of the response)
         def plot_to_base64():
             fig, ax = plt.subplots()
-            ax.scatter(sim_frame['stdev'], sim_frame['ret'], c=sim_frame['sharpe'], cmap='RdYlBu')
-            ax.set_xlabel('Standard Deviation')
-            ax.set_ylabel('Return')
+            ax.scatter(sim_frame['sharpe'], sim_frame['climate_score'], c=sim_frame['sharpe'], cmap='RdYlBu')
+            ax.set_xlabel('sharpe')
+            ax.set_ylabel('climate_score')
             ax.set_title("Portfolio Simulation")
             
             buf = io.BytesIO()
