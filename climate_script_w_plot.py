@@ -174,7 +174,7 @@ def run_script():
         response = jsonify({
             "message": "Script executed successfully",
             "top_results": top_results.to_dict(orient='records'),
-            "plot": plot_to_base64(),
+            "plot": plot_to_base64(sim_frame, top_results),
         })
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
