@@ -3,6 +3,10 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import io
+import base64
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -61,7 +65,7 @@ def run_script():
         stock = climate_score_updated.index.tolist()
 
         # Monte Carlo simulation
-        num_iterations = 50000
+        num_iterations = 20000
         simulation_res = np.zeros((5 + len(stock) - 1, num_iterations))
         for i in range(num_iterations):
             weights = np.array(np.random.random(len(stock)))
@@ -81,10 +85,25 @@ def run_script():
         sorted_sim_frame = sim_frame.sort_values(by='sharpe', ascending=False)
         top_results = sorted_sim_frame.head(5)
 
+        # Plotting (we'll encode the images to base64 to send them as part of the response)
+        def plot_to_base64():
+            fig, ax = plt.subplots()
+            ax.scatter(sim_frame['stdev'], sim_frame['ret'], c=sim_frame['sharpe'], cmap='RdYlBu')
+            ax.set_xlabel('Standard Deviation')
+            ax.set_ylabel('Return')
+            ax.set_title("Portfolio Simulation")
+            
+            buf = io.BytesIO()
+            FigureCanvas(fig).print_png(buf)
+            buf.seek(0)
+            return base64.b64encode(buf.read()).decode('utf-8')
+    
+    
         # Return top results as JSON
         return jsonify({
             "message": "Script executed successfully",
             "top_results": top_results.to_dict(orient='records'),
+            "plot": plot_to_base64(),
         })
 
     except Exception as e:
