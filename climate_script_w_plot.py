@@ -84,6 +84,7 @@ def run_script():
         sim_frame = pd.DataFrame(simulation_res.T, columns=['ret', 'stdev', 'climate_score', 'sharpe'] + stock)
         sorted_sim_frame = sim_frame.sort_values(by='sharpe', ascending=False)
         top_results = sorted_sim_frame.head(3)
+        top_results = top_results.sort_values(by='climate_score', ascending=False)
         
         plt.figure(figsize=(10, 6))
         plt.scatter(sim_frame.climate_score, sim_frame.sharpe, c=sim_frame.sharpe, cmap='RdYlBu', alpha=0.6, edgecolor='k')
@@ -93,7 +94,7 @@ def run_script():
         plt.colorbar(label="Sharpe Ratio")
         plt.ylabel('Sharpe Ratio')
         plt.xlabel('Climate Score')
-        plt.title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios")
+        # plt.title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios")
         plt.legend()
         plt.show()
         
@@ -138,7 +139,7 @@ def run_script():
             # Annotate the top portfolios
             for i, row in top_results.iterrows():
                 ax.annotate(
-                    f"Portfolio {i + 1}", 
+                    f"Portfolio Simulation {i + 1}", 
                     (row['climate_score'], row['sharpe']), 
                     fontsize=9, 
                     ha='right'
@@ -151,7 +152,7 @@ def run_script():
             # Set axis labels and title
             ax.set_xlabel('Climate Score', fontsize=12)
             ax.set_ylabel('Sharpe Ratio', fontsize=12)
-            ax.set_title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios", fontsize=14)
+            # ax.set_title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios", fontsize=14)
         
             # Add a legend
             ax.legend()
