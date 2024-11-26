@@ -61,7 +61,7 @@ def run_script():
         stock = climate_score_updated.index.tolist()
 
         # Monte Carlo simulation
-        num_iterations = 200000
+        num_iterations = 2000
         simulation_res = np.zeros((5 + len(stock) - 1, num_iterations))
         for i in range(num_iterations):
             weights = np.array(np.random.random(len(stock)))
