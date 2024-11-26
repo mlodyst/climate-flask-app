@@ -79,7 +79,7 @@ def run_script():
         # Create DataFrame for results
         sim_frame = pd.DataFrame(simulation_res.T, columns=['ret', 'stdev', 'climate_score', 'sharpe'] + stock)
         sorted_sim_frame = sim_frame.sort_values(by='sharpe', ascending=False)
-        top_results = sorted_sim_frame.head(10)
+        top_results = sorted_sim_frame.head(5)
 
         # Return top results as JSON
         return jsonify({
