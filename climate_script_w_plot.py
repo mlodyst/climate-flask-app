@@ -84,7 +84,19 @@ def run_script():
         sim_frame = pd.DataFrame(simulation_res.T, columns=['ret', 'stdev', 'climate_score', 'sharpe'] + stock)
         sorted_sim_frame = sim_frame.sort_values(by='sharpe', ascending=False)
         top_results = sorted_sim_frame.head(5)
-
+        
+        plt.figure(figsize=(10, 6))
+        plt.scatter(sim_frame.climate_score, sim_frame.sharpe, c=sim_frame.sharpe, cmap='RdYlBu', alpha=0.6, edgecolor='k')
+        plt.scatter(top_results.climate_score, top_results.sharpe, c='red', label='Top Portfolios', edgecolor='black', s=100)
+        for i, row in top_results.iterrows():
+            plt.annotate(f"Portfolio {i+1}", (row['climate_score'], row['sharpe']), fontsize=9, ha='right')
+        plt.colorbar(label="Sharpe Ratio")
+        plt.ylabel('Sharpe Ratio')
+        plt.xlabel('Climate Score')
+        plt.title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios")
+        plt.legend()
+        plt.show()
+        
         # Plotting (we'll encode the images to base64 to send them as part of the response)
         def plot_to_base64():
             fig, ax = plt.subplots()
@@ -103,7 +115,7 @@ def run_script():
         return jsonify({
             "message": "Script executed successfully",
             "top_results": top_results.to_dict(orient='records'),
-            "plot": plot_to_base64(),
+            # "plot": plot_to_base64(),
         })
 
     except Exception as e:
@@ -112,3 +124,5 @@ def run_script():
 # Run the app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+
