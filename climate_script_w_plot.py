@@ -83,7 +83,7 @@ def run_script():
         # Create DataFrame for results
         sim_frame = pd.DataFrame(simulation_res.T, columns=['ret', 'stdev', 'climate_score', 'sharpe'] + stock)
         sorted_sim_frame = sim_frame.sort_values(by='sharpe', ascending=False)
-        top_results = sorted_sim_frame.head(5)
+        top_results = sorted_sim_frame.head(3)
         
         plt.figure(figsize=(10, 6))
         plt.scatter(sim_frame.climate_score, sim_frame.sharpe, c=sim_frame.sharpe, cmap='RdYlBu', alpha=0.6, edgecolor='k')
@@ -98,18 +98,77 @@ def run_script():
         plt.show()
         
         # Plotting (we'll encode the images to base64 to send them as part of the response)
-        def plot_to_base64():
-            fig, ax = plt.subplots()
-            ax.scatter(sim_frame['sharpe'], sim_frame['climate_score'], c=sim_frame['sharpe'], cmap='RdYlBu')
-            ax.set_xlabel('sharpe')
-            ax.set_ylabel('climate_score')
-            ax.set_title("Portfolio Simulation")
+        # def plot_to_base64():
+        #     fig, ax = plt.subplots()
+        #     ax.scatter(sim_frame['climate_score'], sim_frame['sharpe'], c=sim_frame['sharpe'], cmap='RdYlBu')
+        #     ax.set_xlabel('Climate Score')
+        #     ax.set_ylabel('Sharpe Ratio')
+        #     ax.set_title("Portfolio Simulation")
             
+        #     buf = io.BytesIO()
+        #     FigureCanvas(fig).print_png(buf)
+        #     buf.seek(0)
+        #     return base64.b64encode(buf.read()).decode('utf-8')
+        
+        def plot_to_base64(sim_frame, top_results):
+            # Create the figure and axis with specified size
+            fig, ax = plt.subplots(figsize=(10, 6))
+        
+            # Scatter plot for all portfolios
+            scatter = ax.scatter(
+                sim_frame['climate_score'], 
+                sim_frame['sharpe'], 
+                c=sim_frame['sharpe'], 
+                cmap='RdYlBu', 
+                alpha=0.6, 
+                edgecolor='k', 
+                label='All Portfolios'
+            )
+        
+            # Highlight the top portfolios
+            ax.scatter(
+                top_results['climate_score'], 
+                top_results['sharpe'], 
+                c='red', 
+                edgecolor='black', 
+                s=100, 
+                label='Top Portfolios'
+            )
+        
+            # Annotate the top portfolios
+            for i, row in top_results.iterrows():
+                ax.annotate(
+                    f"Portfolio {i + 1}", 
+                    (row['climate_score'], row['sharpe']), 
+                    fontsize=9, 
+                    ha='right'
+                )
+        
+            # Add a color bar for the Sharpe Ratio
+            colorbar = plt.colorbar(scatter, ax=ax)
+            colorbar.set_label("Sharpe Ratio")
+        
+            # Set axis labels and title
+            ax.set_xlabel('Climate Score', fontsize=12)
+            ax.set_ylabel('Sharpe Ratio', fontsize=12)
+            ax.set_title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios", fontsize=14)
+        
+            # Add a legend
+            ax.legend()
+        
+            # Optimize layout for better appearance
+            plt.tight_layout()
+        
+            # Encode the plot as a base64 string
             buf = io.BytesIO()
             FigureCanvas(fig).print_png(buf)
             buf.seek(0)
-            return base64.b64encode(buf.read()).decode('utf-8')
-    
+            plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
+            buf.close()
+        
+            # Return the encoded plot
+            return plot_base64
+            
     
         # Return top results as JSON
         response = jsonify({
