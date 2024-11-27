@@ -33,8 +33,17 @@ def returns(price, type='ln'):
 def run_script():
     try:
         # Retrieve parameters from the request
-        new_deal_size = request.json.get("new_deal_size", 0)  # Get the New_Deal size in USD
-
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No JSON data received"}), 400
+        
+        new_deal_size = data.get("new_deal_size")
+        if new_deal_size is None:
+            return jsonify({"error": "'new_deal_size' parameter is required"}), 400
+        if not isinstance(new_deal_size, (int, float)) or new_deal_size <= 0:
+            return jsonify({"error": "'new_deal_size' must be a positive number"}), 400
+      
+        
         # Define path to the file
         path = os.getcwd()  # Get the current working directory (root of the project)
         ex_file_n = input_file_path  # Path to the Excel file in the 'data/' directory
