@@ -7,7 +7,6 @@ import io
 import base64
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-
 # Initialize the Flask app
 app = Flask(__name__)
 
@@ -33,12 +32,15 @@ def returns(price, type='ln'):
 @app.route('/run-script', methods=['POST'])
 def run_script():
     try:
+        # Retrieve parameters from the request
+        new_deal_size = request.json.get("new_deal_size", 0)  # Get the New_Deal size in USD
+
         # Define path to the file
         path = os.getcwd()  # Get the current working directory (root of the project)
         ex_file_n = input_file_path  # Path to the Excel file in the 'data/' directory
                
         # Import data
-        prices_daily = data_import(path,ex_file_n, 0)
+        prices_daily = data_import(path, ex_file_n, 0)
         masterdata = data_import(path, ex_file_n, 1)
         mean_returns = data_import(path, ex_file_n, 2)
         new_deal_attributes = data_import(path, ex_file_n, 3)
@@ -54,6 +56,10 @@ def run_script():
         new_deal_climate_score = pd.DataFrame(new_deal_climate_score)
         new_deal_climate_score.index = new_deal_attributes.index
         climate_score_updated = pd.concat([masterdata, new_deal_climate_score], axis=0)
+
+        # Calculate maximum weight for the New_Deal
+        total_fund_size = 6.5e9 + new_deal_size  # Total fund size in USD
+        max_new_deal_weight = new_deal_size / total_fund_size
 
         # Resample and calculate returns
         prices_resample = prices_daily_updated.resample('M').last()
@@ -87,36 +93,9 @@ def run_script():
         top_results = sorted_sim_frame.head(3)
         top_results = top_results.sort_values(by='climate_score', ascending=False)
         
-        plt.figure(figsize=(10, 6))
-        plt.scatter(sim_frame.climate_score, sim_frame.sharpe, c=sim_frame.sharpe, cmap='RdYlBu', alpha=0.6, edgecolor='k')
-        plt.scatter(top_results.climate_score, top_results.sharpe, c='red', label='Top Portfolios', edgecolor='black', s=100)
-        for i, row in top_results.iterrows():
-            plt.annotate(f"Portfolio {i+1}", (row['climate_score'], row['sharpe']), fontsize=9, ha='right')
-        plt.colorbar(label="Sharpe Ratio")
-        plt.ylabel('Sharpe Ratio')
-        plt.xlabel('Climate Score')
-        # plt.title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios")
-        plt.legend()
-        plt.show()
-        
-        # Plotting (we'll encode the images to base64 to send them as part of the response)
-        # def plot_to_base64():
-        #     fig, ax = plt.subplots()
-        #     ax.scatter(sim_frame['climate_score'], sim_frame['sharpe'], c=sim_frame['sharpe'], cmap='RdYlBu')
-        #     ax.set_xlabel('Climate Score')
-        #     ax.set_ylabel('Sharpe Ratio')
-        #     ax.set_title("Portfolio Simulation")
-            
-        #     buf = io.BytesIO()
-        #     FigureCanvas(fig).print_png(buf)
-        #     buf.seek(0)
-        #     return base64.b64encode(buf.read()).decode('utf-8')
-        
+        # Define the plotting function (same as before)
         def plot_to_base64(sim_frame, top_results):
-            # Create the figure and axis with specified size
             fig, ax = plt.subplots(figsize=(10, 6))
-        
-            # Scatter plot for all portfolios
             scatter = ax.scatter(
                 sim_frame['climate_score'], 
                 sim_frame['sharpe'], 
@@ -126,8 +105,6 @@ def run_script():
                 edgecolor='k', 
                 label='All Portfolios'
             )
-        
-            # Highlight the top portfolios
             ax.scatter(
                 top_results['climate_score'], 
                 top_results['sharpe'], 
@@ -136,8 +113,6 @@ def run_script():
                 s=100, 
                 label='Top Portfolios'
             )
-        
-            # Annotate the top portfolios
             for i, row in top_results.iterrows():
                 ax.annotate(
                     f"Portfolio {i + 1}", 
@@ -145,37 +120,23 @@ def run_script():
                     fontsize=9, 
                     ha='right'
                 )
-        
-            # Add a color bar for the Sharpe Ratio
             colorbar = plt.colorbar(scatter, ax=ax)
             colorbar.set_label("Sharpe Ratio")
-        
-            # Set axis labels and title
             ax.set_xlabel('Climate Score', fontsize=12)
             ax.set_ylabel('Sharpe Ratio', fontsize=12)
-            # ax.set_title("ESG vs. Sharpe Ratio - Highlighting Top Portfolios", fontsize=14)
-        
-            # Add a legend
-            ax.legend()
-        
-            # Optimize layout for better appearance
             plt.tight_layout()
-        
-            # Encode the plot as a base64 string
             buf = io.BytesIO()
             FigureCanvas(fig).print_png(buf)
             buf.seek(0)
             plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
             buf.close()
-        
-            # Return the encoded plot
             return plot_base64
-            
     
         # Return top results as JSON
         response = jsonify({
             "message": "Script executed successfully",
             "top_results": top_results.to_dict(orient='records'),
+            "max_new_deal_weight": max_new_deal_weight,
             "plot": plot_to_base64(sim_frame, top_results),
         })
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
@@ -193,5 +154,3 @@ def run_script():
 # Run the app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-
-
