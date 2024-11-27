@@ -82,9 +82,16 @@ def run_script():
         # Monte Carlo simulation
         num_iterations = 2000
         simulation_res = np.zeros((5 + len(stock) - 1, num_iterations))
+        valid_simulation_count = 0  # Track valid simulations
         for i in range(num_iterations):
             weights = np.array(np.random.random(len(stock)))
             weights /= np.sum(weights)
+     
+            # Check if weight of the New_Deal exceeds max_new_deal_weight
+            new_deal_weight = weights[-1]  # Assuming New_Deal is the last stock in the list
+            if new_deal_weight > max_new_deal_weight:
+                continue  # Skip this simulation if condition is violated            
+            
             portfolio_return = np.sum(mean_returns_updated * weights)
             portfolio_std_dev = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
             portfolio_climate = np.sum(climate_score_updated * weights)
@@ -94,6 +101,11 @@ def run_script():
             simulation_res[3, i] = simulation_res[0, i] / simulation_res[1, i]
             for j in range(len(weights)):
                 simulation_res[j + 4, i] = weights[j]
+                
+            valid_simulation_count += 1  # Increment valid simulation counter
+
+        # Truncate results to valid simulations
+        simulation_res = simulation_res[:, :valid_simulation_count]    
 
         # Create DataFrame for results
         sim_frame = pd.DataFrame(simulation_res.T, columns=['ret', 'stdev', 'climate_score', 'sharpe'] + stock)
