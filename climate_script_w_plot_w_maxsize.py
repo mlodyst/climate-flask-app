@@ -109,6 +109,7 @@ def run_script():
 
         # Create DataFrame for results
         sim_frame = pd.DataFrame(simulation_res.T, columns=['ret', 'stdev', 'climate_score', 'sharpe'] + stock)
+        sim_frame.index = range(1, len(sim_frame) + 1)
         sim_frame['simulation_number'] = sim_frame.index
         sorted_sim_frame = sim_frame.sort_values(by='sharpe', ascending=False)
         top_results = sorted_sim_frame.head(3)
@@ -136,7 +137,7 @@ def run_script():
             )
             for i, row in top_results.iterrows():
                 ax.annotate(
-                    f"Portfolio {i + 1}", 
+                    f"Portfolio {i}", 
                     (row['climate_score'], row['sharpe']), 
                     fontsize=9, 
                     ha='right'
